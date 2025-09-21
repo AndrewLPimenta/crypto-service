@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import fetch from "node-fetch";
+import axios from "axios";
 import { Server } from "socket.io";
 
 interface BinanceTicker {
@@ -23,10 +23,11 @@ let taxas: { [key: string]: number } = { USD: 1, BRL: 5.0, EUR: 0.9 };
 // Atualiza taxas de câmbio BRL/EUR via Binance
 async function atualizarTaxas() {
   try {
-    const res = await fetch(
-      'https://api.binance.com/api/v3/ticker/price?symbols=["USDTBRL","USDTEUR"]'
+    const res = await axios.get(
+      'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22USDTBRL%22,%22USDTEUR%22%5D'
     );
-    const data = (await res.json()) as BinanceTicker[];
+
+    const data = res.data as BinanceTicker[];
 
     if (!Array.isArray(data)) {
       console.warn("⚠️ Dados inesperados das taxas:", data);
@@ -48,12 +49,15 @@ async function atualizarTaxas() {
 // Envia preços iniciais ao cliente
 async function enviarPrecosIniciais(io: Server, pares: string[]) {
   try {
-    const res = await fetch(
-      `https://api.binance.com/api/v3/ticker/price?symbols=[${pares
-        .map((p) => `"${p.toUpperCase()}"`)
-        .join(",")}]`
+    const symbolsQuery = encodeURIComponent(
+      `[${pares.map((p) => `"${p.toUpperCase()}"`).join(",")}]`
     );
-    const data = (await res.json()) as BinanceTicker[];
+
+    const res = await axios.get(
+      `https://api.binance.com/api/v3/ticker/price?symbols=${symbolsQuery}`
+    );
+
+    const data = res.data as BinanceTicker[];
 
     if (!Array.isArray(data)) {
       console.warn("⚠️ Dados iniciais inesperados:", data);
@@ -80,26 +84,10 @@ atualizarTaxas();
 
 export default function startBinanceStream(io: Server) {
   const pares = [
-    "btcusdt",
-    "ethusdt",
-    "bnbusdt",
-    "adausdt",
-    "xrpusdt",
-    "solusdt",
-    "dogeusdt",
-    "maticusdt",
-    "dotusdt",
-    "shibusdt",
-    "ltcusdt",
-    "avaxusdt",
-    "uniusdt",
-    "linkusdt",
-    "atomusdt",
-    "trxusdt",
-    "etcusdt",
-    "xlmusdt",
-    "nearusdt",
-    "aptusdt",
+    "btcusdt", "ethusdt", "bnbusdt", "adausdt", "xrpusdt",
+    "solusdt", "dogeusdt", "maticusdt", "dotusdt", "shibusdt",
+    "ltcusdt", "avaxusdt", "uniusdt", "linkusdt", "atomusdt",
+    "trxusdt", "etcusdt", "xlmusdt", "nearusdt", "aptusdt",
   ];
 
   enviarPrecosIniciais(io, pares);
