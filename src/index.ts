@@ -25,5 +25,5 @@ startBinanceStream(io);
 
 const PORT = process.env.PORT || 3002;
 httpServer.listen(PORT, () => {
-  console.log(`🚀 Crypto microservice rodando na porta ${PORT}`);
+  console.log(`🚀 microservico de crypto rodando na porta ${PORT}`);
 });
