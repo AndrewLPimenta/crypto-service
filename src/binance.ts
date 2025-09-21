@@ -24,7 +24,7 @@ let taxas: { [key: string]: number } = { USD: 1, BRL: 5.0, EUR: 0.9 };
 async function atualizarTaxas() {
   try {
     const res = await axios.get(
-      'https://api.binance.com/api/v3/ticker/price?symbols=%5B%22USDTBRL%22,%22USDTEUR%22%5D'
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd'
     );
 
     const data = res.data as BinanceTicker[];
